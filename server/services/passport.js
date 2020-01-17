@@ -19,7 +19,7 @@ passport.use(
       clientID: keys.facebookClientID,
       clientSecret: keys.facebookClientSecret,
       callbackURL: "/auth/facebook/callback",
-      profileFields: ["id", "displayName", "email"],
+      profileFields: ["id", "displayName", "email", "photos"],
       proxy: true
     },
     async (accessToken, refreshToken, profile, done) => {
@@ -31,10 +31,13 @@ passport.use(
           return done(null, existingUser);
         }
 
+        const picture = `https://graph.facebook.com/${profile.id}/picture?width=200&height=200`;
+
         const user = await new User({
           facebookId: profile.id,
           name: profile.displayName,
-          email: profile.emails[0].value
+          email: profile.emails[0].value,
+          picture
         }).save();
         done(null, user);
       } else {
